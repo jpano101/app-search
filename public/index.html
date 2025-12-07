@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>High-Performance Search App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .search-section {
+            padding: 40px;
+            background: #f8fafc;
+        }
+
+        .search-container {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 16px 50px 16px 20px;
+            font-size: 18px;
+            border: 2px solid #e2e8f0;
+            border-radius: 50px;
+            outline: none;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .search-input:focus {
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 20px;
+        }
+
+        .autocomplete {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .autocomplete-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f5f9;
+            transition: background-color 0.2s;
+        }
+
+        .autocomplete-item:hover,
+        .autocomplete-item.selected {
+            background-color: #f1f5f9;
+        }
+
+        .filters {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            border-color: #4facfe;
+        }
+
+        .search-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .search-time {
+            font-size: 14px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .results-count {
+            font-size: 14px;
+            color: #374151;
+            font-weight: 600;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .result-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border-color: #4facfe;
+        }
+
+        .result-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .result-description {
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .result-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .result-category {
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .result-price {
+            font-size: 18px;
+            font-weight: 700;
+            color: #059669;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+        }
+
+        .no-results h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #374151;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .pagination button {
+            padding: 10px 16px;
+            border: 1px solid #d1d5db;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: #f8fafc;
+            border-color: #4facfe;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination button.active {
+            background: #4facfe;
+            color: white;
+            border-color: #4facfe;
+        }
+
+        mark {
+            background: #fef08a;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .filters {
+                flex-direction: column;
+            }
+            
+            .search-stats {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+            
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ High-Performance Search</h1>
+            <p>Lightning-fast product search with advanced filtering and caching</p>
+        </div>
+
+        <div class="search-section">
+            <div class="search-container">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    class="search-input" 
+                    placeholder="Search for products... (e.g., iPhone, laptop, gaming)"
+                    autocomplete="off"
+                >
+                <span class="search-icon">🔍</span>
+                <div id="autocomplete" class="autocomplete"></div>
+            </div>
+
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="categoryFilter">Category</label>
+                    <select id="categoryFilter">
+                        <option value="">All Categories</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="minPrice">Min Price ($)</label>
+                    <input type="number" id="minPrice" placeholder="0" min="0" step="0.01">
+                </div>
+                <div class="filter-group">
+                    <label for="maxPrice">Max Price ($)</label>
+                    <input type="number" id="maxPrice" placeholder="1000" min="0" step="0.01">
+                </div>
+            </div>
+
+            <div id="searchStats" class="search-stats" style="display: none;">
+                <div class="results-count"></div>
+                <div class="search-time"></div>
+            </div>
+
+            <div id="results" class="results-grid"></div>
+            
+            <div id="loading" class="loading" style="display: none;">
+                <p>🔍 Searching...</p>
+            </div>
+
+            <div id="pagination" class="pagination" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        class SearchApp {
+            constructor() {
+                this.searchInput = document.getElementById('searchInput');
+                this.categoryFilter = document.getElementById('categoryFilter');
+                this.minPriceInput = document.getElementById('minPrice');
+                this.maxPriceInput = document.getElementById('maxPrice');
+                this.resultsContainer = document.getElementById('results');
+                this.loadingContainer = document.getElementById('loading');
+                this.searchStats = document.getElementById('searchStats');
+                this.autocompleteContainer = document.getElementById('autocomplete');
+                this.paginationContainer = document.getElementById('pagination');
+                
+                this.searchCache = new Map();
+                this.autocompleteCache = new Map();
+                this.currentPage = 0;
+                this.resultsPerPage = 9;
+                this.selectedAutocompleteIndex = -1;
+                
+                this.debounceTimer = null;
+                this.autocompleteTimer = null;
+                
+                this.init();
+            }
+
+            init() {
+                this.loadCategories();
+                this.bindEvents();
+                this.performInitialSearch();
+            }
+
+            bindEvents() {
+                // Debounced search input
+                this.searchInput.addEventListener('input', (e) => {
+                    clearTimeout(this.debounceTimer);
+                    this.debounceTimer = setTimeout(() => {
+                        this.currentPage = 0;
+                        this.performSearch();
+                        this.handleAutocomplete(e.target.value);
+                    }, 300);
+                });
+
+                // Autocomplete keyboard navigation
+                this.searchInput.addEventListener('keydown', (e) => {
+                    this.handleAutocompleteKeyboard(e);
+                });
+
+                // Filter changes
+                [this.categoryFilter, this.minPriceInput, this.maxPriceInput].forEach(filter => {
+                    filter.addEventListener('change', () => {
+                        this.currentPage = 0;
+                        this.performSearch();
+                    });
+                });
+
+                // Hide autocomplete when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!this.searchInput.contains(e.target) && !this.autocompleteContainer.contains(e.target)) {
+                        this.hideAutocomplete();
+                    }
+                });
+            }
+
+            async loadCategories() {
+                try {
+                    const response = await fetch('/api/categories');
+                    const data = await response.json();
+                    
+                    data.categories.forEach(category => {
+                        const option = document.createElement('option');
+                        option.value = category;
+                        option.textContent = category;
+                        this.categoryFilter.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error('Failed to load categories:', error);
+                }
+            }
+
+            async performInitialSearch() {
+                // Perform an initial search to show some results
+                this.searchInput.value = 'phone';
+                await this.performSearch();
+            }
+
+            async performSearch() {
+                const query = this.searchInput.value.trim();
+                if (query.length < 2) {
+                    this.resultsContainer.innerHTML = '';
+                    this.searchStats.style.display = 'none';
+                    this.paginationContainer.style.display = 'none';
+                    return;
+                }
+
+                const cacheKey = this.getCacheKey();
+                
+                // Check cache first
+                if (this.searchCache.has(cacheKey)) {
+                    this.displayResults(this.searchCache.get(cacheKey));
+                    return;
+                }
+
+                this.showLoading();
+
+                try {
+                    const params = new URLSearchParams({
+                        q: query,
+                        limit: this.resultsPerPage,
+                        offset: this.currentPage * this.resultsPerPage
+                    });
+
+                    if (this.categoryFilter.value) {
+                        params.append('category', this.categoryFilter.value);
+                    }
+                    if (this.minPriceInput.value) {
+                        params.append('minPrice', this.minPriceInput.value);
+                    }
+                    if (this.maxPriceInput.value) {
+                        params.append('maxPrice', this.maxPriceInput.value);
+                    }
+
+                    const response = await fetch(`/api/search?${params}`);
+                    const data = await response.json();
+
+                    // Cache the results
+                    this.searchCache.set(cacheKey, data);
+                    
+                    this.displayResults(data);
+                } catch (error) {
+                    console.error('Search failed:', error);
+                    this.hideLoading();
+                    this.resultsContainer.innerHTML = '<div class="no-results"><h3>Search failed</h3><p>Please try again later.</p></div>';
+                }
+            }
+
+            async handleAutocomplete(query) {
+                if (query.length < 2) {
+                    this.hideAutocomplete();
+                    return;
+                }
+
+                // Check cache first
+                if (this.autocompleteCache.has(query)) {
+                    this.displayAutocomplete(this.autocompleteCache.get(query));
+                    return;
+                }
+
+                clearTimeout(this.autocompleteTimer);
+                this.autocompleteTimer = setTimeout(async () => {
+                    try {
+                        const response = await fetch(`/api/autocomplete?q=${encodeURIComponent(query)}`);
+                        const data = await response.json();
+                        
+                        // Cache the suggestions
+                        this.autocompleteCache.set(query, data.suggestions);
+                        
+                        this.displayAutocomplete(data.suggestions);
+                    } catch (error) {
+                        console.error('Autocomplete failed:', error);
+                    }
+                }, 150);
+            }
+
+            displayAutocomplete(suggestions) {
+                if (suggestions.length === 0) {
+                    this.hideAutocomplete();
+                    return;
+                }
+
+                this.autocompleteContainer.innerHTML = suggestions
+                    .map((suggestion, index) => 
+                        `<div class="autocomplete-item" data-index="${index}">${suggestion}</div>`
+                    ).join('');
+
+                this.autocompleteContainer.style.display = 'block';
+                this.selectedAutocompleteIndex = -1;
+
+                // Add click handlers
+                this.autocompleteContainer.querySelectorAll('.autocomplete-item').forEach((item, index) => {
+                    item.addEventListener('click', () => {
+                        this.searchInput.value = suggestions[index];
+                        this.hideAutocomplete();
+                        this.currentPage = 0;
+                        this.performSearch();
+                    });
+                });
+            }
+
+            handleAutocompleteKeyboard(e) {
+                const items = this.autocompleteContainer.querySelectorAll('.autocomplete-item');
+                
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    this.selectedAutocompleteIndex = Math.min(this.selectedAutocompleteIndex + 1, items.length - 1);
+                    this.updateAutocompleteSelection(items);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    this.selectedAutocompleteIndex = Math.max(this.selectedAutocompleteIndex - 1, -1);
+                    this.updateAutocompleteSelection(items);
+                } else if (e.key === 'Enter' && this.selectedAutocompleteIndex >= 0) {
+                    e.preventDefault();
+                    const selectedItem = items[this.selectedAutocompleteIndex];
+                    this.searchInput.value = selectedItem.textContent;
+                    this.hideAutocomplete();
+                    this.currentPage = 0;
+                    this.performSearch();
+                } else if (e.key === 'Escape') {
+                    this.hideAutocomplete();
+                }
+            }
+
+            updateAutocompleteSelection(items) {
+                items.forEach((item, index) => {
+                    item.classList.toggle('selected', index === this.selectedAutocompleteIndex);
+                });
+            }
+
+            hideAutocomplete() {
+                this.autocompleteContainer.style.display = 'none';
+                this.selectedAutocompleteIndex = -1;
+            }
+
+            displayResults(data) {
+                this.hideLoading();
+
+                if (data.results.length === 0) {
+                    this.resultsContainer.innerHTML = `
+                        <div class="no-results">
+                            <h3>No results found</h3>
+                            <p>Try adjusting your search terms or filters.</p>
+                        </div>
+                    `;
+                    this.searchStats.style.display = 'none';
+                    this.paginationContainer.style.display = 'none';
+                    return;
+                }
+
+                // Display search stats
+                this.searchStats.style.display = 'flex';
+                this.searchStats.querySelector('.results-count').textContent = 
+                    `${data.results.length} results found`;
+                this.searchStats.querySelector('.search-time').textContent = 
+                    `Search completed in ${data.searchTime}`;
+
+                // Display results
+                this.resultsContainer.innerHTML = data.results.map(result => `
+                    <div class="result-card">
+                        <div class="result-title">${result.highlighted_name || result.name}</div>
+                        <div class="result-description">${result.highlighted_description || result.description}</div>
+                        <div class="result-meta">
+                            <span class="result-category">${result.category}</span>
+                            <span class="result-price">$${result.price.toFixed(2)}</span>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Show pagination if needed
+                this.updatePagination(data);
+            }
+
+            updatePagination(data) {
+                const hasMore = data.results.length === this.resultsPerPage;
+                const hasPrevious = this.currentPage > 0;
+
+                if (hasMore || hasPrevious) {
+                    this.paginationContainer.style.display = 'flex';
+                    this.paginationContainer.innerHTML = `
+                        <button ${!hasPrevious ? 'disabled' : ''} onclick="searchApp.previousPage()">Previous</button>
+                        <button class="active">${this.currentPage + 1}</button>
+                        <button ${!hasMore ? 'disabled' : ''} onclick="searchApp.nextPage()">Next</button>
+                    `;
+                } else {
+                    this.paginationContainer.style.display = 'none';
+                }
+            }
+
+            previousPage() {
+                if (this.currentPage > 0) {
+                    this.currentPage--;
+                    this.performSearch();
+                }
+            }
+
+            nextPage() {
+                this.currentPage++;
+                this.performSearch();
+            }
+
+            getCacheKey() {
+                return `${this.searchInput.value}-${this.categoryFilter.value}-${this.minPriceInput.value}-${this.maxPriceInput.value}-${this.currentPage}`;
+            }
+
+            showLoading() {
+                this.loadingContainer.style.display = 'block';
+                this.resultsContainer.innerHTML = '';
+                this.searchStats.style.display = 'none';
+                this.paginationContainer.style.display = 'none';
+            }
+
+            hideLoading() {
+                this.loadingContainer.style.display = 'none';
+            }
+        }
+
+        // Initialize the search app
+        const searchApp = new SearchApp();
+    </script>
+</body>
+</html>
