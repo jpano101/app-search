@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meet Our Team MVP!</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            line-height: 1.6;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #2a2a2a;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .email-header {
+            background: linear-gradient(135deg, #333333, #1a1a1a);
+            padding: 24px;
+            border-bottom: 1px solid #404040;
+        }
+        
+        .sender-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .sender-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
+            margin-right: 12px;
+        }
+        
+        .sender-details h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 2px;
+        }
+        
+        .sender-details .time {
+            font-size: 14px;
+            color: #888888;
+        }
+        
+        .email-subject {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+        
+        .email-preview {
+            font-size: 14px;
+            color: #cccccc;
+            opacity: 0.8;
+        }
+        
+        .email-body {
+            padding: 32px 24px;
+        }
+        
+        .hero-section {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .dog-image-container {
+            position: relative;
+            display: inline-block;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+            margin-bottom: 24px;
+        }
+        
+        .dog-image {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            display: block;
+        }
+        
+        .badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .content-section {
+            margin-bottom: 32px;
+        }
+        
+        .content-section h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        
+        .content-text {
+            font-size: 16px;
+            color: #cccccc;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        
+        .highlight {
+            color: #4CAF50;
+            font-weight: 600;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 16px;
+            margin: 32px 0;
+        }
+        
+        .stat-card {
+            background-color: #333333;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #404040;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #4CAF50;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #888888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .cta-section {
+            text-align: center;
+            margin: 32px 0;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 16px 32px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(76, 175, 80, 0.3);
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+        
+        .features-list {
+            background-color: #333333;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+            border: 1px solid #404040;
+        }
+        
+        .features-list h3 {
+            color: #4CAF50;
+            font-size: 18px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        
+        .features-list ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .features-list li {
+            padding: 8px 0;
+            color: #cccccc;
+            position: relative;
+            padding-left: 24px;
+        }
+        
+        .features-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        
+        .email-footer {
+            background-color: #1a1a1a;
+            padding: 24px;
+            text-align: center;
+            border-top: 1px solid #404040;
+        }
+        
+        .footer-text {
+            color: #888888;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .social-link {
+            color: #4CAF50;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .social-link:hover {
+            color: #66BB6A;
+        }
+        
+        .unsubscribe {
+            color: #666666;
+            font-size: 12px;
+            text-decoration: none;
+        }
+        
+        @media (max-width: 600px) {
+            .email-container {
+                margin: 0;
+                border-radius: 0;
+            }
+            
+            .email-header,
+            .email-body,
+            .email-footer {
+                padding: 20px 16px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .social-links {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Email Header -->
+        <div class="email-header">
+            <div class="sender-info">
+                <div class="sender-avatar">🐕</div>
+                <div class="sender-details">
+                    <h3>Team Updates</h3>
+                    <div class="time">Just now</div>
+                </div>
+            </div>
+            <div class="email-subject">Meet Our New Team MVP!</div>
+            <div class="email-preview">Introducing our four-legged colleague who's ready to bring some serious team spirit...</div>
+        </div>
+        
+        <!-- Email Body -->
+        <div class="email-body">
+            <div class="hero-section">
+                <div class="dog-image-container">
+                    <img src="doggo.JPG" alt="Team MVP wearing a baseball cap" class="dog-image">
+                    <div class="badge">MVP</div>
+                </div>
+            </div>
+            
+            <div class="content-section">
+                <h2>🏆 Introducing Our Star Player</h2>
+                <div class="content-text">
+                    Meet our newest team member who's already showing <span class="highlight">championship-level dedication</span> 
+                    and an unmatched ability to boost team morale. With that perfect cap placement and those soulful eyes, 
+                    this MVP is ready to take our team spirit to the next level!
+                </div>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">Good Boy Rating</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">∞</div>
+                    <div class="stat-label">Loyalty Points</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">24/7</div>
+                    <div class="stat-label">Availability</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">1st</div>
+                    <div class="stat-label">Place in Hearts</div>
+                </div>
+            </div>
+            
+            <div class="features-list">
+                <h3>🌟 Key Qualifications</h3>
+                <ul>
+                    <li>Expert-level hat wearing technique</li>
+                    <li>Professional kitchen table posing skills</li>
+                    <li>Advanced treat negotiation abilities</li>
+                    <li>Certified in unconditional love delivery</li>
+                    <li>Fluent in tail wagging and head tilts</li>
+                    <li>Master of the "puppy dog eyes" strategy</li>
+                </ul>
+            </div>
+            
+            <div class="content-text">
+                This superstar is already making waves in the office with their <span class="highlight">positive attitude</span> 
+                and natural leadership qualities. Whether it's boosting morale during tough meetings or providing 
+                stress relief during crunch time, our new MVP is here to make every day better.
+            </div>
+            
+            <div class="cta-section">
+                <a href="#" class="cta-button">Welcome to the Team! 🎉</a>
+            </div>
+            
+            <div class="content-text">
+                <em>Ready to bring some pawsitive energy to your day? This champion is just getting started!</em>
+            </div>
+        </div>
+        
+        <!-- Email Footer -->
+        <div class="email-footer">
+            <div class="footer-text">
+                Thanks for being part of our amazing team! 🚀
+            </div>
+            
+            <div class="social-links">
+                <a href="#" class="social-link">Share</a>
+                <a href="#" class="social-link">Forward</a>
+                <a href="#" class="social-link">Save</a>
+            </div>
+            
+            <a href="#" class="unsubscribe">Unsubscribe from team updates</a>
+        </div>
+    </div>
+</body>
+</html>
